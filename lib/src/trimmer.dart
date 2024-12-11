@@ -4,6 +4,7 @@ import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:path/path.dart';
+import 'package:logger/logger.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +14,8 @@ import 'package:better_video_trimmer/src/utils/file_formats.dart';
 import 'package:better_video_trimmer/src/utils/storage_dir.dart';
 
 enum TrimmerEvent { initialized }
+
+final Logger logger = Logger(level: Level.debug);
 
 /// Helps in loading video from file, saving trimmed video to a file
 /// and gives video playback controls. Some of the helpful methods
@@ -38,12 +41,15 @@ class Trimmer {
   ///
   /// Returns the loaded video file.
   Future<void> loadVideo({required File videoFile}) async {
+    logger.i('BetterTrimmer: Initiated video loading.');
     currentVideoFile = videoFile;
     if (videoFile.existsSync()) {
+      logger.i('BetterTrimmer: File exists.');
       final betterPlayerDataSource = BetterPlayerDataSource(
         BetterPlayerDataSourceType.file,
         currentVideoFile!.path,
       );
+      logger.i('BetterTrimmer: data source initiated.');
 
       //TODO Custom config
       // Initialize BetterPlayerController with the data source
@@ -54,10 +60,14 @@ class Trimmer {
         ), 
         betterPlayerDataSource: betterPlayerDataSource,
       );
+      logger.i('BetterTrimmer: video controller initiated.');
 
       // Add an event after the video is initialized
       _controller.add(TrimmerEvent.initialized);
+    } else {
+      logger.e('BetterTrimmer: File does not exist.');
     }
+    logger.i('BetterTrimmer: video successfully loaded.');
   }
 
   Future<String> _createFolderInAppDocDir(
