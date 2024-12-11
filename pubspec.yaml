@@ -1,7 +1,7 @@
-name: video_trimmer
-description: A Flutter package for trimming videos. This supports retrieving, trimming, and storage of trimmed video files to the file system.
+name: better_video_trimmer
+description: An updated version of better_video_trimmer using betterPlayer for a better compatibility.
 version: 3.0.1
-homepage: https://github.com/sbis04/video_trimmer
+homepage: https://github.com/AdrienGaill/better_video_trimmer
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

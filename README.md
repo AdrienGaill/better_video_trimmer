@@ -1,18 +1,18 @@
 <a href="https://github.com/Solido/awesome-flutter">
    <img alt="Awesome Flutter" src="https://img.shields.io/badge/Awesome-Flutter-blue.svg?longCache=true&style=flat-square" />
 </a>
-<a href="https://pub.dev/packages/video_trimmer">
-  <img alt="Pub Version" src="https://img.shields.io/pub/v/video_trimmer?style=flat-square">
+<a href="https://pub.dev/packages/better_video_trimmer">
+  <img alt="Pub Version" src="https://img.shields.io/pub/v/better_video_trimmer?style=flat-square">
 </a>
-<a href="https://github.com/sbis04/video_trimmer/stargazers">
-  <img alt="GitHub stars" src="https://img.shields.io/github/stars/sbis04/video_trimmer?style=flat-square">
+<a href="https://github.com/sbis04/better_video_trimmer/stargazers">
+  <img alt="GitHub stars" src="https://img.shields.io/github/stars/sbis04/better_video_trimmer?style=flat-square">
 </a>
-<a href="https://github.com/sbis04/video_trimmer/blob/master/LICENSE">
-  <img alt="GitHub license" src="https://img.shields.io/github/license/sbis04/video_trimmer?style=flat-square">
+<a href="https://github.com/sbis04/better_video_trimmer/blob/master/LICENSE">
+  <img alt="GitHub license" src="https://img.shields.io/github/license/sbis04/better_video_trimmer?style=flat-square">
 </a>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sbis04/video_trimmer/refs/heads/main/screenshots/cover.png" alt="Video Trimmer" />
+  <img src="https://raw.githubusercontent.com/sbis04/better_video_trimmer/refs/heads/main/screenshots/cover.png" alt="Video Trimmer" />
 </p>
 
 <h4 align="center">A Flutter package for trimming videos</h4>
@@ -31,33 +31,33 @@ Also, supports conversion to **GIF**.
 Following image shows the structure of the `TrimViewer`. It consists of the `Duration` on top (displaying the start, end, and scrubber time), `TrimArea` consisting of the thumbnails, and `TrimEditor` which is an overlay that let's you select a portion from the video.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sbis04/video_trimmer/refs/heads/main/screenshots/trim_preview.png"/>
+  <img src="https://raw.githubusercontent.com/sbis04/better_video_trimmer/refs/heads/main/screenshots/trim_preview.png"/>
 </p>
 
 ## Example
 
-The [example app](https://github.com/sbis04/video_trimmer/tree/main/example) running on an iPhone 13 Pro device:
+The [example app](https://github.com/sbis04/better_video_trimmer/tree/main/example) running on an iPhone 13 Pro device:
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/sbis04/video_trimmer/refs/heads/main/screenshots/updated_trimmer_demo.gif" alt="Trimmer"/>
+  <img src="https://raw.githubusercontent.com/sbis04/better_video_trimmer/refs/heads/main/screenshots/updated_trimmer_demo.gif" alt="Trimmer"/>
 </p>
 
 ## Usage
 
-Add the dependency `video_trimmer` to your **pubspec.yaml** file:
+Add the dependency `better_video_trimmer` to your **pubspec.yaml** file:
 
 For using main version of FFmpeg package:
 
 ```yaml
 dependencies:
-  video_trimmer: ^4.0.0
+  better_video_trimmer: ^4.0.0
 ```
 
 For using LTS version of FFmpeg package:
 
 ```yaml
 dependencies:
-  video_trimmer: ^4.0.0-LTS
+  better_video_trimmer: ^4.0.0-LTS
 ```
 
 ### Android configuration
@@ -204,7 +204,7 @@ TrimViewer(
 
 ## Example
 
-Before using this example directly in a Flutter app, don't forget to add the `video_trimmer` & `file_picker` packages to your `pubspec.yaml` file.
+Before using this example directly in a Flutter app, don't forget to add the `better_video_trimmer` & `file_picker` packages to your `pubspec.yaml` file.
 
 You can try out this example by replacing the entire content of `main.dart` file of a newly created Flutter project.
 
@@ -213,7 +213,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:video_trimmer/video_trimmer.dart';
+import 'package:better_video_trimmer/better_video_trimmer.dart';
 
 void main() => runApp(MyApp());
 

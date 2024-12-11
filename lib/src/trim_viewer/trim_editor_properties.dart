@@ -53,7 +53,7 @@ class TrimEditorProperties {
   ///
   /// A better look at the structure of the **Trim Viewer**:
   ///
-  /// ![](https://raw.githubusercontent.com/sbis04/video_trimmer/new_editor/screenshots/trim_viewer_preview_small.png)
+  /// ![](https://raw.githubusercontent.com/sbis04/better_video_trimmer/new_editor/screenshots/trim_viewer_preview_small.png)
   ///
   ///
   /// All the parameters are optional:
