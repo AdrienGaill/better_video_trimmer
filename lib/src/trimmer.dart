@@ -48,7 +48,10 @@ class Trimmer {
       //TODO Custom config
       // Initialize BetterPlayerController with the data source
       _videoPlayerController = BetterPlayerController(
-        const BetterPlayerConfiguration(), 
+        const BetterPlayerConfiguration(
+          autoPlay: true,
+          looping: true,
+        ), 
         betterPlayerDataSource: betterPlayerDataSource,
       );
 
