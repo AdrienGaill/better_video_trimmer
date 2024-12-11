@@ -8,7 +8,7 @@ import 'package:path/path.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:video_player/video_player.dart';
+import 'package:better_player/better_player.dart';
 import 'package:video_trimmer/src/utils/file_formats.dart';
 import 'package:video_trimmer/src/utils/storage_dir.dart';
 
@@ -17,18 +17,17 @@ enum TrimmerEvent { initialized }
 /// Helps in loading video from file, saving trimmed video to a file
 /// and gives video playback controls. Some of the helpful methods
 /// are:
-/// - [loadVideo()]
-/// - [saveTrimmedVideo()]
-/// - [videoPlaybackControl()]
+/// * [loadVideo()]
+/// * [saveTrimmedVideo()]
+/// * [videoPlaybackControl()]
 class Trimmer {
   // final FlutterFFmpeg _flutterFFmpeg = FFmpegKit();
 
   final StreamController<TrimmerEvent> _controller =
       StreamController<TrimmerEvent>.broadcast();
 
-  VideoPlayerController? _videoPlayerController;
-
-  VideoPlayerController? get videoPlayerController => _videoPlayerController;
+  BetterPlayerController? _videoPlayerController; 
+  BetterPlayerController? get videoPlayerController => _videoPlayerController;
 
   File? currentVideoFile;
 
@@ -41,10 +40,20 @@ class Trimmer {
   Future<void> loadVideo({required File videoFile}) async {
     currentVideoFile = videoFile;
     if (videoFile.existsSync()) {
-      _videoPlayerController = VideoPlayerController.file(currentVideoFile!);
-      await _videoPlayerController!.initialize().then((_) {
-        _controller.add(TrimmerEvent.initialized);
-      });
+      final betterPlayerDataSource = BetterPlayerDataSource(
+        BetterPlayerDataSourceType.file,
+        currentVideoFile!.path,
+      );
+
+      //TODO Custom config
+      // Initialize BetterPlayerController with the data source
+      _videoPlayerController = BetterPlayerController(
+        const BetterPlayerConfiguration(), 
+        betterPlayerDataSource: betterPlayerDataSource,
+      );
+
+      // Add an event after the video is initialized
+      _controller.add(TrimmerEvent.initialized);
     }
   }
 
@@ -282,11 +291,11 @@ class Trimmer {
     required double startValue,
     required double endValue,
   }) async {
-    if (videoPlayerController!.value.isPlaying) {
+    if (videoPlayerController!.isPlaying() ?? false) {
       await videoPlayerController!.pause();
       return false;
     } else {
-      if (videoPlayerController!.value.position.inMilliseconds >=
+      if (videoPlayerController!.videoPlayerController!.value.position.inMilliseconds >=
           endValue.toInt()) {
         await videoPlayerController!
             .seekTo(Duration(milliseconds: startValue.toInt()));

@@ -5,7 +5,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:video_player/video_player.dart';
+import 'package:better_player/better_player.dart';
 import 'package:video_trimmer/src/trim_viewer/trim_editor_painter.dart';
 import 'package:video_trimmer/src/trim_viewer/trim_area_properties.dart';
 import 'package:video_trimmer/src/trim_viewer/trim_editor_properties.dart';
@@ -15,7 +15,6 @@ import 'package:video_trimmer/src/utils/duration_style.dart';
 import '../../utils/editor_drag_type.dart';
 import 'scrollable_thumbnail_viewer.dart';
 
-/// Widget for displaying the video trimmer.
 class ScrollableTrimViewer extends StatefulWidget {
   /// The Trimmer instance controlling the data.
   final Trimmer trimmer;
@@ -100,7 +99,8 @@ class ScrollableTrimViewer extends StatefulWidget {
   ///
   ///
   /// * [durationTextStyle] is for providing a `TextStyle` to the
-  /// duration text. By default it is set to `TextStyle(color: Colors.white)`.
+  /// duration text. By default it is set to
+  /// `TextStyle(color: Colors.white)`
   ///
   ///
   /// * [onChangeStart] is a callback to the video start position.
@@ -182,9 +182,9 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
   AnimationController? _animationController;
   late Tween<double> _linearTween;
 
-  /// Quick access to VideoPlayerController, only not null after [TrimmerEvent.initialized]
+  /// Quick access to BetterPlayerController, only not null after [TrimmerEvent.initialized]
   /// has been emitted.
-  VideoPlayerController get videoPlayerController =>
+  BetterPlayerController get videoPlayerController =>
       widget.trimmer.videoPlayerController!;
 
   /// Keep track of the drag type, e.g. whether the user drags the left, center or
@@ -298,7 +298,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
       // The video has been initialized, now we can load stuff
       videoPlayerController.seekTo(const Duration(milliseconds: 0));
       setState(() {
-        final totalDuration = videoPlayerController.value.duration;
+        final totalDuration = videoPlayerController.videoPlayerController?.value.duration ?? Duration.zero;
         log('Total Video Length: $totalDuration');
         final maxVideoLength = widget.maxVideoLength;
         log('Max Video Length: $maxVideoLength');
@@ -325,7 +325,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
         final numberOfThumbnailsTotal = (numberOfThumbnailsInArea *
                 (totalDuration.inMilliseconds /
                     trimAreaDuration.inMilliseconds))
-            .ceil();
+            .toInt();
         log('THUMBNAILS: in area=$numberOfThumbnailsInArea, total=$numberOfThumbnailsTotal');
 
         // find precise durations according to the number of thumbnails;
@@ -391,14 +391,14 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
 
   Future<void> _initializeVideoController() async {
     if (_videoFile == null) return;
-    videoPlayerController.addListener(() {
-      final bool isPlaying = videoPlayerController.value.isPlaying;
+    videoPlayerController.videoPlayerController!.addListener(() {
+      final bool isPlaying = videoPlayerController.isPlaying() ?? false;
 
       if (isPlaying) {
         widget.onChangePlaybackState!(true);
         setState(() {
           _currentPosition =
-              videoPlayerController.value.position.inMilliseconds;
+              videoPlayerController.videoPlayerController!.value.position.inMilliseconds;
 
           if (_currentPosition > _videoEndPos.toInt()) {
             videoPlayerController.pause();
@@ -412,7 +412,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
           }
         });
       } else {
-        if (videoPlayerController.value.isInitialized) {
+        if (videoPlayerController.isVideoInitialized() ?? false) {
           if (_animationController != null) {
             if ((_scrubberAnimation?.value ?? 0).toInt() ==
                 (_endPos.dx).toInt()) {
@@ -426,7 +426,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
     });
 
     videoPlayerController.setVolume(1.0);
-    _videoDuration = videoPlayerController.value.duration.inMilliseconds;
+    _videoDuration = videoPlayerController.videoPlayerController!.value.duration?.inMilliseconds ?? 0;
   }
 
   /// Called when the user starts dragging the frame, on either side on the whole frame.
@@ -597,7 +597,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
                               .format(widget.durationStyle),
                           style: widget.durationTextStyle,
                         ),
-                        videoPlayerController.value.isPlaying
+                        videoPlayerController.isPlaying() ?? false
                             ? Text(
                                 Duration(milliseconds: _currentPosition.toInt())
                                     .format(widget.durationStyle),
@@ -697,8 +697,8 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
                   ],
                 ),
               ),
-              // This widget is used in development for making the DEBUGGING
-              // process of this package easier.
+              // This widget is in development for making the DEBUGGING
+              // process of this package easier
               Visibility(
                 visible: false,
                 child: Row(

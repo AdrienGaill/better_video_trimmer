@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
+import 'package:better_player/better_player.dart';
 
 import 'trimmer.dart';
 
@@ -48,9 +48,9 @@ class VideoViewer extends StatefulWidget {
 }
 
 class _VideoViewerState extends State<VideoViewer> {
-  /// Quick access to VideoPlayerController, only not null after [TrimmerEvent.initialized]
+  /// Quick access to BetterPlayerController, only not null after [TrimmerEvent.initialized]
   /// has been emitted.
-  VideoPlayerController? get videoPlayerController =>
+  BetterPlayerController? get videoPlayerController =>
       widget.trimmer.videoPlayerController;
 
   @override
@@ -67,31 +67,32 @@ class _VideoViewerState extends State<VideoViewer> {
   @override
   Widget build(BuildContext context) {
     final controller = videoPlayerController;
-    return controller == null
-        ? Container()
-        : Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: Center(
-              child: AspectRatio(
-                aspectRatio: controller.value.aspectRatio,
-                child: controller.value.isInitialized
-                    ? Container(
-                        foregroundDecoration: BoxDecoration(
-                          border: Border.all(
-                            width: widget.borderWidth,
-                            color: widget.borderColor,
-                          ),
-                        ),
-                        child: VideoPlayer(controller),
-                      )
-                    : const Center(
-                        child: CircularProgressIndicator(
-                          backgroundColor: Colors.white,
-                        ),
-                      ),
-              ),
-            ),
-          );
+    if (controller == null) {
+      return Container();
+    }
+    return Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: Center(
+        child: AspectRatio(
+          aspectRatio: controller.getAspectRatio() ?? 1,
+          child: controller.isVideoInitialized() ?? false
+              ? Container(
+                  foregroundDecoration: BoxDecoration(
+                    border: Border.all(
+                      width: widget.borderWidth,
+                      color: widget.borderColor,
+                    ),
+                  ),
+                  child: BetterPlayer(controller: controller),
+                )
+              : const Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.white,
+                  ),
+                ),
+        ),
+      ),
+    );
   }
 
   @override
