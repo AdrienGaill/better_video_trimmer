@@ -44,6 +44,8 @@ int _mapQualityToFFmpegScale(int quality) {
 /// - `quality` (required): The quality of the thumbnails (percentage).
 /// - `onThumbnailLoadingComplete` (required): A callback function that is
 ///   called when all thumbnails have been generated.
+/// - `mirrorThumbnails`: A boolean stating whether thumbnails generated should be mirrored.
+///   Defaults to false.
 ///
 /// Returns:
 /// A stream of lists of byte arrays, where each list contains the generated
@@ -74,6 +76,7 @@ Stream<List<Uint8List?>> generateThumbnail({
   required int numberOfThumbnails,
   required int quality,
   required VoidCallback onThumbnailLoadingComplete,
+  bool mirrorThumbnails = false,
 }) async* {
   final double eachPart = videoDuration / numberOfThumbnails;
 
@@ -112,6 +115,7 @@ Stream<List<Uint8List?>> generateThumbnail({
         '-ss $formattedTimestamp', // Seek to timestamp
         '-i "$videoPath"', // Input downscaled video
         '-frames:v 1',
+        if (mirrorThumbnails) '-vf "hflip"', // Apply horizontal flip if needed
         '-q:v ${_mapQualityToFFmpegScale(quality)}', // Lower quality
         '"$thumbnailPath"', // Output file
       ].join(' ');

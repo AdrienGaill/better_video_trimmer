@@ -18,6 +18,7 @@ class ScrollableThumbnailViewer extends StatelessWidget {
   /// - [scrollController] is the scroll controller for the scrollable thumbnail view.
   /// - [onThumbnailLoadingComplete] is the callback function that is called when thumbnail loading is complete.
   /// - [quality] is the quality of the generated thumbnails, ranging from 0 to 100. Defaults to 75.
+  /// - [mirrorThumbnails] states whether the thumbnails should be mirrored. Defaults to false.
   const ScrollableThumbnailViewer({
     super.key,
     required this.videoFile,
@@ -28,6 +29,7 @@ class ScrollableThumbnailViewer extends StatelessWidget {
     required this.scrollController,
     required this.onThumbnailLoadingComplete,
     this.quality = 75,
+    this.mirrorThumbnails = false,
   });
 
   /// The video file from which thumbnails are generated.
@@ -55,6 +57,10 @@ class ScrollableThumbnailViewer extends StatelessWidget {
   /// Defaults to 75.
   final int quality;
 
+  /// Whether the thumbnails should be mirrored.
+  /// Defaults to false.
+  final bool mirrorThumbnails;
+
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
@@ -71,6 +77,7 @@ class ScrollableThumbnailViewer extends StatelessWidget {
               numberOfThumbnails: numberOfThumbnails,
               quality: quality,
               onThumbnailLoadingComplete: onThumbnailLoadingComplete,
+              mirrorThumbnails: mirrorThumbnails, 
             ),
             builder: (context, snapshot) {
               if (snapshot.hasData) {

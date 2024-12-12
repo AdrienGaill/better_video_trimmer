@@ -1,14 +1,16 @@
+import 'package:flutter/material.dart';
+
 import 'dart:async';
 import 'dart:io';
+
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:path/path.dart';
 import 'package:logger/logger.dart';
-
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+
 import 'package:better_player/better_player.dart';
 import 'package:better_video_trimmer/src/utils/file_formats.dart';
 import 'package:better_video_trimmer/src/utils/storage_dir.dart';
@@ -40,34 +42,38 @@ class Trimmer {
   /// Loads a video using the path provided.
   ///
   /// Returns the loaded video file.
-  Future<void> loadVideo({required File videoFile}) async {
-    logger.i('BetterTrimmer: Initiated video loading.');
-    currentVideoFile = videoFile;
-    if (videoFile.existsSync()) {
-      logger.i('BetterTrimmer: File exists.');
-      final betterPlayerDataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.file,
-        currentVideoFile!.path,
-      );
-      logger.i('BetterTrimmer: data source initiated.');
+  Future<void> loadVideo({required File videoFile, double? aspectRatio}) async {
+    try {
+      currentVideoFile = videoFile;
+      if (videoFile.existsSync()) {
+        final betterPlayerDataSource = BetterPlayerDataSource(
+          BetterPlayerDataSourceType.file,
+          currentVideoFile!.path,
+        );
 
-      //TODO Custom config
-      // Initialize BetterPlayerController with the data source
-      _videoPlayerController = BetterPlayerController(
-        const BetterPlayerConfiguration(
-          autoPlay: true,
-          looping: true,
-        ), 
-        betterPlayerDataSource: betterPlayerDataSource,
-      );
-      logger.i('BetterTrimmer: video controller initiated.');
+        // Initialize BetterPlayerController with the data source
+        _videoPlayerController = BetterPlayerController(
+          BetterPlayerConfiguration(
+            aspectRatio: aspectRatio ?? 9 / 16, 
+            controlsConfiguration: const BetterPlayerControlsConfiguration(
+              showControls: false,
+            ),
+            fullScreenByDefault: false,
+            autoPlay: true,
+            looping: false,
+          ), 
+        );
 
-      // Add an event after the video is initialized
-      _controller.add(TrimmerEvent.initialized);
-    } else {
-      logger.e('BetterTrimmer: File does not exist.');
+        await _videoPlayerController!.setupDataSource(betterPlayerDataSource);
+
+        // Add an event after the video is initialized
+        _controller.add(TrimmerEvent.initialized);
+      } else {
+        logger.e('BetterTrimmer: File does not exist.');
+      }
+    } catch (e) {
+      logger.e('BetterTrimmer: Error during video loading: $e.');
     }
-    logger.i('BetterTrimmer: video successfully loaded.');
   }
 
   Future<String> _createFolderInAppDocDir(
@@ -324,5 +330,6 @@ class Trimmer {
   /// Clean up
   void dispose() {
     _controller.close();
+    _videoPlayerController?.dispose();
   }
 }

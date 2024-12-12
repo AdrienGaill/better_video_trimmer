@@ -25,6 +25,10 @@ class ScrollableTrimViewer extends StatefulWidget {
   /// For defining the total trimmer area height
   final double viewerHeight;
 
+  /// Whether the thumbnails should be mirrored.
+  /// Defaults to false.
+  final bool mirrorThumbnails;
+
   /// For defining the maximum length of the output video.
   final Duration maxVideoLength;
 
@@ -90,6 +94,10 @@ class ScrollableTrimViewer extends StatefulWidget {
   ///
   /// The optional parameters are:
   ///
+  /// * [mirrorThumbnails] defines whether the thumbnails should be mirrored.
+  /// Defaults to false.
+  /// 
+  ///
   /// * [maxVideoLength] for specifying the maximum length of the
   /// output video.
   ///
@@ -125,6 +133,7 @@ class ScrollableTrimViewer extends StatefulWidget {
     required this.onThumbnailLoadingComplete,
     this.viewerWidth = 50 * 8,
     this.viewerHeight = 50,
+    this.mirrorThumbnails = false,
     this.showDuration = true,
     this.durationTextStyle = const TextStyle(color: Colors.white),
     this.durationStyle = DurationStyle.FORMAT_HH_MM_SS,
@@ -342,6 +351,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
           numberOfThumbnails: _numberOfThumbnails,
           quality: widget.areaProperties.thumbnailQuality,
           onThumbnailLoadingComplete: widget.onThumbnailLoadingComplete,
+          mirrorThumbnails: widget.mirrorThumbnails,
         );
         this.thumbnailWidget = thumbnailWidget;
         log('=========================');

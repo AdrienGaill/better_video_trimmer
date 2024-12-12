@@ -56,6 +56,7 @@ class _VideoViewerState extends State<VideoViewer> {
   @override
   void initState() {
     widget.trimmer.eventStream.listen((event) {
+      // logger.i('BetterTrimmer: Received an event ${event.toString()}');
       if (event == TrimmerEvent.initialized) {
         //The video has been initialized, now we can load stuff
         setState(() {});
@@ -71,26 +72,23 @@ class _VideoViewerState extends State<VideoViewer> {
       return Container();
     }
     return Padding(
-      padding: const EdgeInsets.all(0.0),
+      padding: widget.padding,
       child: Center(
-        child: AspectRatio(
-          aspectRatio: controller.getAspectRatio() ?? 1,
-          child: controller.isVideoInitialized() ?? false
-              ? Container(
-                  foregroundDecoration: BoxDecoration(
-                    border: Border.all(
-                      width: widget.borderWidth,
-                      color: widget.borderColor,
-                    ),
-                  ),
-                  child: BetterPlayer(controller: controller),
-                )
-              : const Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.white,
-                  ),
+        child: controller.isVideoInitialized() ?? false
+          ? Container(
+              foregroundDecoration: BoxDecoration(
+                border: Border.all(
+                  width: widget.borderWidth,
+                  color: widget.borderColor,
                 ),
-        ),
+              ),
+              child: BetterPlayer(controller: controller),
+            )
+          : const Center(
+              child: CircularProgressIndicator(
+                backgroundColor: Colors.white,
+              ),
+            ),
       ),
     );
   }

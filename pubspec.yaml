@@ -13,7 +13,6 @@ dependencies:
   logger: ^2.5.0
   better_player: ^0.0.84
   ffmpeg_kit_flutter: ^6.0.3
-  video_thumbnail: ^0.5.3
   path_provider: ^2.1.1
   intl: ^0.18.1
   path: ^1.8.3

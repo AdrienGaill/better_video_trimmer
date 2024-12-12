@@ -27,6 +27,10 @@ class FixedThumbnailViewer extends StatelessWidget {
   /// The quality of the generated thumbnails, ranging from 0 to 100.
   final int quality;
 
+  /// Whether the thumbnails should be mirrored.
+  /// Defaults to false.
+  final bool mirrorThumbnails;
+
   /// For showing the thumbnails generated from the video,
   /// like a frame by frame preview
   ///
@@ -46,6 +50,7 @@ class FixedThumbnailViewer extends StatelessWidget {
     required this.fit,
     required this.onThumbnailLoadingComplete,
     this.quality = 75,
+    this.mirrorThumbnails = false,
   });
 
   @override
@@ -56,7 +61,9 @@ class FixedThumbnailViewer extends StatelessWidget {
           videoDuration: videoDuration,
           numberOfThumbnails: numberOfThumbnails,
           quality: quality,
-          onThumbnailLoadingComplete: onThumbnailLoadingComplete),
+          onThumbnailLoadingComplete: onThumbnailLoadingComplete,
+          mirrorThumbnails: mirrorThumbnails,
+      ),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           List<Uint8List?> imageBytes = snapshot.data!;

@@ -90,6 +90,10 @@ class TrimViewer extends StatefulWidget {
   /// thumbnails are loaded.
   final VoidCallback? onThumbnailLoadingComplete;
 
+  /// Whether the thumbnails should be mirrored.
+  /// Defaults to false.
+  final bool mirrorThumbnails;
+
   /// Widget for displaying the video trimmer.
   ///
   /// This has frame wise preview of the video with a
@@ -166,6 +170,10 @@ class TrimViewer extends StatefulWidget {
   ///
   /// * [onThumbnailLoadingComplete] is a callback for thumbnail loader to
   /// know when all the thumbnails are loaded.
+  /// 
+  /// 
+  /// * [mirrorThumbnails] defines whether the thumbnails should be mirrored.
+  /// Defaults to false.
   ///
   const TrimViewer({
     Key? key,
@@ -184,6 +192,7 @@ class TrimViewer extends StatefulWidget {
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const TrimAreaProperties(),
     this.onThumbnailLoadingComplete,
+    this.mirrorThumbnails = false,
   }) : super(key: key);
 
   @override
@@ -238,6 +247,7 @@ class _TrimViewerState extends State<TrimViewer> with TickerProviderStateMixin {
           widget.onThumbnailLoadingComplete!();
         }
       },
+      mirrorThumbnails: widget.mirrorThumbnails,
     );
 
     final fixedTrimViewer = FixedTrimViewer(
@@ -262,6 +272,7 @@ class _TrimViewerState extends State<TrimViewer> with TickerProviderStateMixin {
           widget.onThumbnailLoadingComplete!();
         }
       },
+      mirrorThumbnails: widget.mirrorThumbnails,
     );
 
     return _isScrollableAllowed == null

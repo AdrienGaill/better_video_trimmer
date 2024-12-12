@@ -23,6 +23,10 @@ class FixedTrimViewer extends StatefulWidget {
   /// For defining the total trimmer area height
   final double viewerHeight;
 
+  /// Whether the thumbnails should be mirrored.
+  /// Defaults to false.
+  final bool mirrorThumbnails;
+
   /// For defining the maximum length of the output video.
   final Duration maxVideoLength;
 
@@ -84,6 +88,9 @@ class FixedTrimViewer extends StatefulWidget {
   ///
   /// The optional parameters are:
   ///
+  /// * [mirrorThumbnails] to mirror or not the thumbnails of the trimmer.
+  ///
+  ///
   /// * [maxVideoLength] for specifying the maximum length of the
   /// output video.
   ///
@@ -118,6 +125,7 @@ class FixedTrimViewer extends StatefulWidget {
     required this.onThumbnailLoadingComplete,
     this.viewerWidth = 50.0 * 8,
     this.viewerHeight = 50,
+    this.mirrorThumbnails = false,
     this.maxVideoLength = const Duration(milliseconds: 0),
     this.showDuration = true,
     this.durationTextStyle = const TextStyle(color: Colors.white),
@@ -212,10 +220,11 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
           numberOfThumbnails: _numberOfThumbnails,
           quality: widget.areaProperties.thumbnailQuality,
           onThumbnailLoadingComplete: widget.onThumbnailLoadingComplete,
+          mirrorThumbnails: widget.mirrorThumbnails,
         );
         this.thumbnailWidget = thumbnailWidget;
         Duration totalDuration = videoPlayerController.videoPlayerController?.value.duration ?? Duration.zero;
-
+        
         if (widget.maxVideoLength > const Duration(milliseconds: 0) &&
             widget.maxVideoLength < totalDuration) {
           if (widget.maxVideoLength < totalDuration) {
@@ -275,7 +284,7 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
               widget.onChangePlaybackState!(false);
               _animationController!.stop();
             } else {
-              if (!_animationController!.isAnimating) {
+              if (_animationController!=null && !_animationController!.isAnimating) {
                 widget.onChangePlaybackState!(true);
                 _animationController!.forward();
               }
