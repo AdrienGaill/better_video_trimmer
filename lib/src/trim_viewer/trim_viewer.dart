@@ -93,6 +93,14 @@ class TrimViewer extends StatefulWidget {
   /// Whether the thumbnails should be mirrored.
   /// Defaults to false.
   final bool mirrorThumbnails;
+  
+  /// Initial value for the start position in milliseconds.
+  /// Default is null, which means no initial value.
+  final double? initialStartValue;
+  
+  /// Initial value for the end position in milliseconds.
+  /// Default is null, which means no initial value.
+  final double? initialEndValue;
 
   /// Widget for displaying the video trimmer.
   ///
@@ -175,6 +183,11 @@ class TrimViewer extends StatefulWidget {
   /// * [mirrorThumbnails] defines whether the thumbnails should be mirrored.
   /// Defaults to false.
   ///
+  /// * [initialStartValue] defines the initial start value in milliseconds.
+  ///
+  ///
+  /// * [initialEndValue] defines the initial end value in milliseconds.
+  ///
   const TrimViewer({
     Key? key,
     required this.trimmer,
@@ -193,6 +206,8 @@ class TrimViewer extends StatefulWidget {
     this.areaProperties = const TrimAreaProperties(),
     this.onThumbnailLoadingComplete,
     this.mirrorThumbnails = false,
+    this.initialStartValue,
+    this.initialEndValue,
   }) : super(key: key);
 
   @override
@@ -248,6 +263,8 @@ class _TrimViewerState extends State<TrimViewer> with TickerProviderStateMixin {
         }
       },
       mirrorThumbnails: widget.mirrorThumbnails,
+      initialStartValue: widget.initialStartValue,
+      initialEndValue: widget.initialEndValue,
     );
 
     final fixedTrimViewer = FixedTrimViewer(
@@ -273,6 +290,8 @@ class _TrimViewerState extends State<TrimViewer> with TickerProviderStateMixin {
         }
       },
       mirrorThumbnails: widget.mirrorThumbnails,
+      initialStartValue: widget.initialStartValue,
+      initialEndValue: widget.initialEndValue,
     );
 
     return _isScrollableAllowed == null

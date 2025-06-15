@@ -71,6 +71,14 @@ class FixedTrimViewer extends StatefulWidget {
   final FixedTrimAreaProperties areaProperties;
 
   final VoidCallback onThumbnailLoadingComplete;
+  
+  /// Initial value for the start position in milliseconds.
+  /// Default is null, which means no initial value.
+  final double? initialStartValue;
+  
+  /// Initial value for the end position in milliseconds.
+  /// Default is null, which means no initial value.
+  final double? initialEndValue;
 
   /// Widget for displaying the video trimmer.
   ///
@@ -119,6 +127,11 @@ class FixedTrimViewer extends StatefulWidget {
   ///
   /// * [areaProperties] defines properties for customizing the fixed trim area.
   ///
+  /// * [initialStartValue] defines the initial start value in milliseconds.
+  ///
+  ///
+  /// * [initialEndValue] defines the initial end value in milliseconds.
+  ///
   const FixedTrimViewer({
     super.key,
     required this.trimmer,
@@ -135,6 +148,8 @@ class FixedTrimViewer extends StatefulWidget {
     this.onChangePlaybackState,
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const FixedTrimAreaProperties(),
+    this.initialStartValue,
+    this.initialEndValue,
   });
 
   @override
@@ -196,6 +211,7 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
     _endCircleSize = widget.editorProperties.circleSize;
     _borderRadius = widget.editorProperties.borderRadius;
     _thumbnailViewerH = widget.viewerHeight;
+    
     log('thumbnailViewerW: $_thumbnailViewerW');
     SchedulerBinding.instance.addPostFrameCallback((_) {
       final renderBox =
@@ -237,16 +253,107 @@ class _FixedTrimViewerState extends State<FixedTrimViewer>
           maxLengthPixels = _thumbnailViewerW;
         }
 
-        _videoEndPos = fraction != null
-            ? _videoDuration.toDouble() * fraction!
-            : _videoDuration.toDouble();
-
-        widget.onChangeEnd!(_videoEndPos);
-
-        _endPos = Offset(
-          maxLengthPixels != null ? maxLengthPixels! : _thumbnailViewerW,
-          _thumbnailViewerH,
-        );
+        // Calculate positions based on initialStartValue/initialEndValue if they exist
+        if (widget.initialStartValue != null) {
+          // Ensure _videoDuration is not zero to avoid division by zero
+          if (_videoDuration > 0) {
+            // If initialStartValue is greater than the video duration, default to 0
+            if (widget.initialStartValue! > _videoDuration) {
+              _videoStartPos = 0.0;
+              log('initialStartValue (${widget.initialStartValue}) greater than video duration ($_videoDuration), defaulting to 0');
+            } else {
+              // Clamp the start value to ensure it's within bounds
+              _videoStartPos = widget.initialStartValue!.clamp(0.0, _videoDuration.toDouble());
+              log('Using initialStartValue: $_videoStartPos ms (clamped), video duration: $_videoDuration');
+            }
+            
+            // Convert to fraction by dividing milliseconds by milliseconds
+            _startFraction = _videoStartPos / _videoDuration.toDouble();
+            
+            // In the TrimEditorPainter:
+            // - startPos is the top-left corner of the trim rectangle
+            // - endPos is the bottom-right corner of the trim rectangle
+            // The painter draws the trim handles in the middle of the left and right sides
+            _startPos = Offset(_startFraction * _thumbnailViewerW, 0);
+          } else {
+            // Default if video duration is not valid
+            _startPos = const Offset(0, 0);
+            _startFraction = 0.0;
+            _videoStartPos = 0.0;
+          }
+        } else {
+          // Default start position is 0
+          _startPos = const Offset(0, 0);
+          _startFraction = 0.0;
+          _videoStartPos = 0.0;
+        }
+        
+        if (widget.onChangeStart != null) {
+          widget.onChangeStart!(_videoStartPos);
+        }
+        
+        if (widget.initialEndValue != null) {
+          // Ensure _videoDuration is not zero to avoid division by zero
+          if (_videoDuration > 0) {
+            double endValue;
+            
+            // If initialEndValue is greater than video duration, use the video duration
+            if (widget.initialEndValue! > _videoDuration) {
+              endValue = _videoDuration.toDouble();
+              log('initialEndValue (${widget.initialEndValue}) greater than video duration ($_videoDuration), defaulting to video duration');
+            } else {
+              endValue = widget.initialEndValue!;
+            }
+            
+            // Ensure end is after start by at least 1ms
+            _videoEndPos = endValue.clamp(
+              _videoStartPos + 1.0,
+              _videoDuration.toDouble()
+            );
+            
+            // Convert to fraction by dividing milliseconds by milliseconds
+            _endFraction = _videoEndPos / _videoDuration.toDouble();
+            
+            // Calculate the position but respect maxLengthPixels constraint
+            double targetEndPx = _endFraction * _thumbnailViewerW;
+            double startPx = _startPos.dx;
+            
+            // Check if we're exceeding the maxLengthPixels constraint
+            if (maxLengthPixels != null && (targetEndPx - startPx) > maxLengthPixels!) {
+              // If we'd exceed the max length, limit it
+              targetEndPx = startPx + maxLengthPixels!;
+              // Recalculate the end fraction and position
+              _endFraction = targetEndPx / _thumbnailViewerW;
+              _videoEndPos = _videoDuration.toDouble() * _endFraction;
+              log('Applied max length constraint: end adjusted to $_videoEndPos ms');
+            }
+            
+            // The end position's y-coordinate should be the height of the trimmer
+            _endPos = Offset(targetEndPx, _thumbnailViewerH);
+            
+            log('Using initialEndValue: $_videoEndPos ms (clamped), fraction: $_endFraction');
+          } else {
+            // Default if video duration is not valid
+            _endPos = Offset(_thumbnailViewerW, _thumbnailViewerH);
+            _endFraction = 1.0;
+            _videoEndPos = _videoDuration.toDouble();
+          }
+        } else {
+          // Default end position based on fraction or full duration
+          _videoEndPos = fraction != null
+              ? _videoDuration.toDouble() * fraction!
+              : _videoDuration.toDouble();
+              
+          _endPos = Offset(
+            maxLengthPixels != null ? maxLengthPixels! : _thumbnailViewerW,
+            _thumbnailViewerH,
+          );
+          _endFraction = _endPos.dx / _thumbnailViewerW;
+        }
+        
+        if (widget.onChangeEnd != null) {
+          widget.onChangeEnd!(_videoEndPos);
+        }
 
         // Defining the tween points
         _linearTween = Tween(begin: _startPos.dx, end: _endPos.dx);

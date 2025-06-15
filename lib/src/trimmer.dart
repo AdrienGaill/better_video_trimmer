@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit_config.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:ffmpeg_kit_flutter_min_gpl/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_min_gpl/ffmpeg_kit_config.dart';
+import 'package:ffmpeg_kit_flutter_min_gpl/return_code.dart';
 import 'package:path/path.dart';
 import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
@@ -123,7 +123,7 @@ class Trimmer {
   /// The required parameters are [startValue], [endValue] & [onSave].
   ///
   /// The optional parameters are [videoFolderName], [videoFileName],
-  /// [outputFormat], [fpsGIF], [scaleGIF], [applyVideoEncoding].
+  /// [outputFormat], [fpsGIF], [scaleGIF], [mirrorVideo] and [applyVideoEncoding].
   ///
   /// The `@required` parameter [startValue] is for providing a starting point
   /// to the trimmed video. To be specified in `milliseconds`.
@@ -167,7 +167,8 @@ class Trimmer {
   /// * [fpsGIF] for providing a FPS value (by default it is set
   /// to `10`)
   ///
-  ///
+  /// * [mirrorVideo] to flip horizontally the video 
+  /// 
   /// * [scaleGIF] for proving a width to output GIF, the height
   /// is selected by maintaining the aspect ratio automatically (by
   /// default it is set to `480`)
@@ -194,6 +195,7 @@ class Trimmer {
     bool applyVideoEncoding = false,
     FileFormat? outputFormat,
     String? ffmpegCommand,
+    bool mirrorVideo = false,
     String? customVideoFormat,
     int? fpsGIF,
     int? scaleGIF,
@@ -202,28 +204,20 @@ class Trimmer {
     StorageDir? storageDir,
   }) async {
     final String videoPath = currentVideoFile!.path;
-    final String videoName = basename(videoPath).split('.')[0];
 
     String command;
 
     // Formatting Date and Time
-    String dateTime = DateFormat.yMMMd()
-        .addPattern('-')
-        .add_Hms()
-        .format(DateTime.now())
-        .toString();
+    String formattedDateTime = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
 
-    // String _resultString;
     String outputPath;
     String? outputFormatString;
-    String formattedDateTime = dateTime.replaceAll(' ', '');
 
-    debugPrint("DateTime: $dateTime");
-    debugPrint("Formatted: $formattedDateTime");
+    debugPrint("DateTime: $formattedDateTime");
 
-    videoFolderName ??= "Trimmer";
+    videoFolderName ??= "trimmer";
 
-    videoFileName ??= "${videoName}_trimmed:$formattedDateTime";
+    videoFileName ??= '${formattedDateTime}_trimmed';
 
     videoFileName = videoFileName.replaceAll(' ', '_');
 
@@ -250,14 +244,20 @@ class Trimmer {
       outputFormatString = outputFormat.toString();
     }
 
+    String mirrorFilter = mirrorVideo ? '-vf "hflip"' : '';  // hflip is for horizontal mirroring
+    // String mirrorFilter = '';  // hflip is for horizontal mirroring
+
     String trimLengthCommand =
         ' -ss $startPoint -i "$videoPath" -t ${endPoint - startPoint} -avoid_negative_ts make_zero ';
 
-    if (ffmpegCommand == null) {
-      command = '$trimLengthCommand -c:a copy ';
 
-      if (!applyVideoEncoding) {
+    if (ffmpegCommand == null) {
+      // command = '$trimLengthCommand -c:a copy ';
+      command = '$trimLengthCommand$mirrorFilter -c:a copy ';
+      if (!applyVideoEncoding && !mirrorVideo) {
         command += '-c:v copy ';
+      } else {
+        command += ' -c:v libx264 ';
       }
 
       if (outputFormat == FileFormat.gif) {
@@ -267,19 +267,20 @@ class Trimmer {
             '$trimLengthCommand -vf "fps=$fpsGIF,scale=$scaleGIF:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" -loop 0 ';
       }
     } else {
-      command = '$trimLengthCommand $ffmpegCommand ';
+      command = '$trimLengthCommand$mirrorFilter $ffmpegCommand ';
       outputFormatString = customVideoFormat;
     }
 
     outputPath = '$path$videoFileName$outputFormatString';
 
     command += '"$outputPath"';
-
+    // logger.i('BetterTrimmer: command is $command');
     FFmpegKit.executeAsync(command, (session) async {
       final state =
           FFmpegKitConfig.sessionStateToString(await session.getState());
       final returnCode = await session.getReturnCode();
-
+      // final logs = await session.getAllLogsAsString();
+      // logger.i('BetterTrimmer: $logs');
       debugPrint("FFmpeg process exited with state $state and rc $returnCode");
 
       if (ReturnCode.isSuccess(returnCode)) {

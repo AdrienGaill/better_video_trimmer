@@ -77,6 +77,14 @@ class ScrollableTrimViewer extends StatefulWidget {
   final TrimAreaProperties areaProperties;
 
   final VoidCallback onThumbnailLoadingComplete;
+  
+  /// Initial value for the start position in milliseconds.
+  /// Default is null, which means no initial value.
+  final double? initialStartValue;
+  
+  /// Initial value for the end position in milliseconds.
+  /// Default is null, which means no initial value.
+  final double? initialEndValue;
 
   /// Widget for displaying the video trimmer.
   ///
@@ -126,6 +134,11 @@ class ScrollableTrimViewer extends StatefulWidget {
   ///
   /// * [areaProperties] defines properties for customizing the trim area.
   ///
+  /// * [initialStartValue] defines the initial start value in milliseconds.
+  ///
+  ///
+  /// * [initialEndValue] defines the initial end value in milliseconds.
+  ///
   const ScrollableTrimViewer({
     super.key,
     required this.trimmer,
@@ -143,6 +156,8 @@ class ScrollableTrimViewer extends StatefulWidget {
     this.paddingFraction = 0.2,
     this.editorProperties = const TrimEditorProperties(),
     this.areaProperties = const TrimAreaProperties(),
+    this.initialStartValue,
+    this.initialEndValue,
   });
 
   @override
@@ -296,6 +311,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
     _endCircleSize = widget.editorProperties.circleSize;
     _borderRadius = widget.editorProperties.borderRadius;
     _thumbnailViewerH = widget.viewerHeight;
+    
     SchedulerBinding.instance.addPostFrameCallback((_) {
       final renderBox =
           _trimmerAreaKey.currentContext?.findRenderObject() as RenderBox?;
@@ -415,7 +431,7 @@ class _ScrollableTrimViewerState extends State<ScrollableTrimViewer>
             widget.onChangePlaybackState!(false);
             _animationController!.stop();
           } else {
-            if (!_animationController!.isAnimating) {
+            if (!_animationController!.isAnimating) { // FIXME Throws an error: Null check operator used on a null value
               widget.onChangePlaybackState!(true);
               _animationController!.forward();
             }

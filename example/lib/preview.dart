@@ -48,7 +48,7 @@ class _PreviewState extends State<Preview> {
       ),
       body: Center(
         child: AspectRatio(
-          aspectRatio: _controller.videoPlayerController?.value.aspectRatio ?? 1.0,
+          aspectRatio: _controller.videoPlayerController?.value.aspectRatio ?? 9/16,
           child: _controller.isVideoInitialized() ?? false
               ? BetterPlayer(controller: _controller)
               : const Center(
